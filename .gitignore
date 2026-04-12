@@ -1,0 +1,67 @@
+# ========================
+# Dependencies
+# ========================
+node_modules/
+**/node_modules/        # catches node_modules in ALL subfolders
+
+# ========================
+# Environment Variables
+# ========================
+.env
+.env.local
+.env.development
+.env.production
+**/.env
+**/.env.local
+
+# ========================
+# SQLite Database
+# ========================
+*.db
+*.sqlite
+*.sqlite3
+
+# ========================
+# Build outputs
+# ========================
+dist/
+build/
+**/dist/
+**/build/
+
+# ========================
+# Logs
+# ========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================
+# OS files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Editor / IDE
+# ========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ========================
+# TypeScript
+# ========================
+*.tsbuildinfo
+
+# ========================
+# Package lock (optional)
+# ========================
+# package-lock.json     ← uncomment if you want to ignore it
+# yarn.lock
