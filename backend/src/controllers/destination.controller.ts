@@ -40,7 +40,7 @@ export const getDestinations = async (req: Request, res: Response) => {
     }
 
     query += ` LIMIT ? OFFSET ?`;
-    params.push(Number(page), Number(offset));
+    params.push(Number(limit), Number(offset));
 
     const data = await db.all(query, params);
     res.json(data);
