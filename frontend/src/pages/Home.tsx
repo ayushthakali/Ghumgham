@@ -1,17 +1,26 @@
 // src/pages/Home.tsx
 import { useState } from "react";
-import { useGetDestinationsQuery } from "../services/destinationAPi";
+import { useGetDestinationsQuery } from "../services/endpoints/destinationApi.endpoints";
+import { useDebounce } from "../hooks/useDebounce";
+import { useAddToTripMutation } from "../services/endpoints/tripApi.endpoints";
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [minCost, setMinCost] = useState("");
+  const [page, setPage] = useState(1);
+
+  const debouncedSearch = useDebounce(search, 2000);
 
   const { data, isLoading } = useGetDestinationsQuery({
-    search,
+    search: debouncedSearch,
     category,
     minCost,
+    page,
+    limit: 5,
   });
+
+  const [addToTrip] = useAddToTripMutation();
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -42,8 +51,15 @@ export default function Home() {
         <div key={d.id}>
           <h3>{d.name}</h3>
           <p>{d.cost}</p>
+
+          <button onClick={() => addToTrip({ destinationId: d.id, tripId: 1 })}>
+            Add to Trip
+          </button>
         </div>
       ))}
+
+      <button onClick={() => setPage((p) => p - 1)}>Prev</button>
+      <button onClick={() => setPage((p) => p + 1)}>Next</button>
     </div>
   );
 }

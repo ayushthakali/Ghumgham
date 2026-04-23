@@ -10,5 +10,6 @@ export const api = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Trips"],
   endpoints: () => ({}),
 });
