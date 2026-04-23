@@ -15,6 +15,6 @@ router.get("/", protect, getUserTrips);
 router.get("/:id", protect, getTripDetails);
 
 router.post("/add", protect, addDestinationToTrip);
-router.delete("/remove", protect, removeDestinationFromTrip);
+router.post("/remove", protect, removeDestinationFromTrip);
 
 export default router;

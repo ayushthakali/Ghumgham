@@ -3,6 +3,7 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Trips from "../pages/Trips";
+import TripDetail from "../pages/TripDetail";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Home /> },
@@ -12,6 +13,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Trips />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/trips/:id",
+    element: (
+      <ProtectedRoute>
+        <TripDetail />
       </ProtectedRoute>
     ),
   },

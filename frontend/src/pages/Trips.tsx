@@ -1,9 +1,10 @@
+import { Link } from "react-router-dom";
 import {
   useCreateTripMutation,
   useGetTripsQuery,
 } from "../services/endpoints/tripApi.endpoints";
 
-interface Trip {
+export interface Trip {
   id: number;
   total_cost: number;
 }
@@ -23,6 +24,7 @@ function Trips() {
         <div>
           <p>Trip #{trip.id}</p>
           <p>Total cost: {trip.total_cost}</p>
+          <Link to={`/trips/${trip.id}`}>View Details</Link>
         </div>
       ))}
     </div>

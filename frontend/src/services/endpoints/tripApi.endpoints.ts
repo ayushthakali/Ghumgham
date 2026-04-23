@@ -1,3 +1,4 @@
+import type { Trip } from "../../pages/Trips";
 import { api } from "../api";
 
 export const tripApi = api.injectEndpoints({
@@ -23,15 +24,63 @@ export const tripApi = api.injectEndpoints({
           body,
         }),
 
-        async onQueryStarted(arg,{dispatch,queryFulfilled}){
-            const patch = dispatch(
-                api.util.
-            )
-        }
-    },
+        async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+          const patch = dispatch(
+            api.util.updateQueryData("getTrips", undefined, (draft: Trip[]) => {
+              const trip = draft.find((t: Trip) => t.id === arg.tripId);
+              if (trip) {
+                trip.total_cost += 1000; // temp approximation
+              }
+            }),
+          );
+
+          try {
+            await queryFulfilled;
+          } catch {
+            patch.undo();
+          }
+        },
+      },
     ),
+
+    getTripDetails: builder.query<any, number>({
+      query: (id) => `/trips/${id}`,
+      providesTags: ["TripDetails"],
+    }),
+
+    removeFromTrip: builder.mutation<
+      any,
+      { destinationId: number; tripId: number }
+    >({
+      query: (body) => ({
+        url: "/trips/remove",
+        method: "POST",
+        body,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          api.util.updateQueryData(
+            "getTripDetails",
+            arg.tripId,
+            (draft: any) => {
+              return draft.filter((d: any) => d.id !== arg.destinationId);
+            },
+          ),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+    }),
   }),
 });
 
-export const { useGetTripsQuery, useCreateTripMutation, useAddToTripMutation } =
-  tripApi;
+export const {
+  useGetTripsQuery,
+  useCreateTripMutation,
+  useAddToTripMutation,
+  useGetTripDetailsQuery,
+  useRemoveFromTripMutation,
+} = tripApi;
