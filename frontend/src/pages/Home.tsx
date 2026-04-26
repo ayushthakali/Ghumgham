@@ -1,8 +1,16 @@
 // src/pages/Home.tsx
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGetDestinationsQuery } from "../services/endpoints/destinationApi.endpoints";
 import { useDebounce } from "../hooks/useDebounce";
-import { useAddToTripMutation } from "../services/endpoints/tripApi.endpoints";
+import Loader from "../components/Loader";
+import DestinationCard from "../components/DestinationCard";
+
+export interface DestinationDetail {
+  id: number;
+  name: string;
+  cost: string;
+  image_url: string;
+}
 
 export default function Home() {
   const [search, setSearch] = useState("");
@@ -10,19 +18,26 @@ export default function Home() {
   const [minCost, setMinCost] = useState("");
   const [page, setPage] = useState(1);
 
-  const debouncedSearch = useDebounce(search, 2000);
+  const debouncedSearch = useDebounce(search, 800);
 
-  const { data, isLoading } = useGetDestinationsQuery({
-    search: debouncedSearch,
-    category,
-    minCost,
-    page,
-    limit: 5,
-  });
+  const queryParams = useMemo(
+    () => ({
+      search: debouncedSearch,
+      category,
+      minCost,
+      page,
+      limit: 5,
+    }),
+    [debouncedSearch, category, page, minCost],
+  );
 
-  const [addToTrip] = useAddToTripMutation();
+  const { data, isLoading, error } = useGetDestinationsQuery(queryParams);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loader />;
+
+  if (error) {
+    return <div>Something went wrong</div>;
+  }
 
   return (
     <div>
@@ -31,10 +46,19 @@ export default function Home() {
       <input
         placeholder="Search"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1);
+        }}
       />
 
-      <select onChange={(e) => setCategory(e.target.value)}>
+      <select
+        value={category}
+        onChange={(e) => {
+          setCategory(e.target.value);
+          setPage(1);
+        }}
+      >
         <option value="">All</option>
         <option value="budget">Budget</option>
         <option value="mid">Mid</option>
@@ -47,18 +71,18 @@ export default function Home() {
         onChange={(e) => setMinCost(e.target.value)}
       />
 
-      {data?.map((d: any) => (
+      {data?.map((d: DestinationDetail) => (
         <div key={d.id}>
-          <h3>{d.name}</h3>
-          <p>{d.cost}</p>
-
-          <button onClick={() => addToTrip({ destinationId: d.id, tripId: 1 })}>
-            Add to Trip
-          </button>
+          <DestinationCard destination={d} />
         </div>
       ))}
 
-      <button onClick={() => setPage((p) => p - 1)}>Prev</button>
+      <button
+        disabled={page === 1}
+        onClick={() => setPage((p) => Math.max(1, p - 1))}
+      >
+        Prev
+      </button>
       <button onClick={() => setPage((p) => p + 1)}>Next</button>
     </div>
   );

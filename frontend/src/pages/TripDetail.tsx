@@ -3,6 +3,7 @@ import {
   useGetTripDetailsQuery,
   useRemoveFromTripMutation,
 } from "../services/endpoints/tripApi.endpoints";
+import Loader from "../components/Loader";
 
 export interface TripDetail {
   id: number;
@@ -13,9 +14,9 @@ export interface TripDetail {
 function TripDetail() {
   const { id } = useParams();
   const { data, isLoading } = useGetTripDetailsQuery(Number(id));
-  const [removeFromTrip] = useRemoveFromTripMutation();
+  const [removeFromTrip, { isLoading: removing }] = useRemoveFromTripMutation();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loader />;
 
   return (
     <div>
@@ -26,6 +27,7 @@ function TripDetail() {
           <h3>{d.name}</h3>
           <p>{d.cost}</p>
           <button
+            disabled={removing}
             onClick={() =>
               removeFromTrip({ destinationId: d.id, tripId: Number(id) })
             }

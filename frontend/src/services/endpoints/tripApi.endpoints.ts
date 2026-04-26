@@ -23,15 +23,20 @@ export const tripApi = api.injectEndpoints({
           method: "POST",
           body,
         }),
+        invalidatesTags: ["Trips"],
 
         async onQueryStarted(arg, { dispatch, queryFulfilled }) {
           const patch = dispatch(
-            api.util.updateQueryData("getTrips", undefined, (draft: Trip[]) => {
-              const trip = draft.find((t: Trip) => t.id === arg.tripId);
-              if (trip) {
-                trip.total_cost += 1000; // temp approximation
-              }
-            }),
+            tripApi.util.updateQueryData(
+              "getTrips",
+              undefined,
+              (draft: Trip[]) => {
+                const trip = draft.find((t: Trip) => t.id === arg.tripId);
+                if (trip) {
+                  trip.total_cost += 1000; // temp approximation
+                }
+              },
+            ),
           );
 
           try {
@@ -57,12 +62,16 @@ export const tripApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Trips", "TripDetails"],
+
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const patch = dispatch(
-          api.util.updateQueryData(
-            "getTripDetails",
-            arg.tripId,
+          tripApi.util.updateQueryData(
+            //api.util doesn't know endpoint "getTripDetails" so use extended API instance not base api
+            "getTripDetails", //endpointName
+            arg.tripId, //cacheKey
             (draft: any) => {
+              //  immer draft — mutate directly : update the cache before the server responds
               return draft.filter((d: any) => d.id !== arg.destinationId);
             },
           ),
