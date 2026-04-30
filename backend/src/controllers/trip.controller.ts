@@ -88,7 +88,7 @@ export const removeDestinationFromTrip = async (
 ) => {
   try {
     const userId = req.user!.id;
-    const { destinationId, tripId } = req.body;
+    const { destinationId, tripId } = req.params;
 
     const trip = await db.get(
       `SELECT * FROM trips WHERE id = ? AND user_id = ?`,
@@ -101,19 +101,12 @@ export const removeDestinationFromTrip = async (
       [tripId, destinationId],
     );
 
-    const items = await db.all(
-      `SELECT d.cost FROM trip_items ti JOIN destinations d ON ti.destination_id = d.id WHERE ti.trip_id = ?`,
-      [tripId],
+    await db.run(
+      `UPDATE trips SET total_cost = (SELECT SUM(d.cost) FROM destinations d JOIN trip_items ti ON d.id = ti.destination_id WHERE ti.trip_id = ?) WHERE id = ?`,
+      [tripId, tripId],
     );
 
-    const total = items.reduce((sum, item) => sum + item.cost, 0);
-
-    await db.run(`UPDATE trips SET total_cost = ? WHERE id = ?`, [
-      total,
-      tripId,
-    ]);
-
-    res.json({ message: "Destination Removed From Trip", total_cost: total });
+    res.json({ message: "Destination Removed From Trip" });
   } catch (err) {
     res.status(500).json({ error: "Internal Server Error" });
   }

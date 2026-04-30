@@ -57,10 +57,9 @@ export const tripApi = api.injectEndpoints({
       any,
       { destinationId: number; tripId: number }
     >({
-      query: (body) => ({
-        url: "/trips/remove",
-        method: "POST",
-        body,
+      query: ({ destinationId, tripId }) => ({
+        url: `trips/${tripId}/destinations/${destinationId}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["Trips", "TripDetails"],
 
